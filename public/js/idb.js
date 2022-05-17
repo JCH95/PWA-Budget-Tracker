@@ -8,7 +8,7 @@ request.onupgradeneeded = function(event) {
     // save a reference to the database 
     const db = event.target.result;
     // create an object store (table) called `new_budget`, set it to have an auto incrementing primary key of sorts 
-    db.createObjectStore('new_budget', { autoIncrement: true });
+    db.createObjectStore('new_transaction', { autoIncrement: true });
 };
 
 // upon a successful connection 
@@ -28,15 +28,15 @@ request.onerror = function(event) {
 
 // This function will be executed if we attempt to submit a new budget and there's no internet connection
 function saveRecord(record) { 
-    const transaction = db.transaction(['new_budget'], 'readwrite');
+    const transaction = db.transaction(['new_transaction'], 'readwrite');
 
-    const transactionObjectStore = transaction.objectStore('new_budget');
+    const transactionObjectStore = transaction.objectStore('new_transaction');
   
     transactionObjectStore.add(record);
 }
 
-function uploadPizza() {
-    const transaction = db.transaction(['new_budget'], 'readwrite');
+function uploadBudget() {
+    const transaction = db.transaction(['new_transaction'], 'readwrite');
   
     const transactionObjectStore = transaction.objectStore('new_budget');
   
@@ -60,13 +60,13 @@ function uploadPizza() {
                         throw new Error(serverResponse);
                     }
                     // open one more transaction
-                    const transaction = db.transaction(['new_budget'], 'readwrite');
+                    const transaction = db.transaction(['new_transaction'], 'readwrite');
                     // access the new_budget object store
-                    const transactionObjectStore = transaction.objectStore('new_budget');
+                    const transactionObjectStore = transaction.objectStore('new_transaction');
                     // clear all items in your store
                     transactionObjectStore.clear();
 
-                    alert('All saved budget changes has been submitted!');
+                    alert('All saved transactions has been submitted!');
                 })
                 .catch(err => {
                     console.log(err);
