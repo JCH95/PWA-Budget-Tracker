@@ -28,9 +28,49 @@ request.onerror = function(event) {
 
 // This function will be executed if we attempt to submit a new budget and there's no internet connection
 function saveRecord(record) { 
-    const transaction = db.transaction(['new_pizza'], 'readwrite');
+    const transaction = db.transaction(['new_budget'], 'readwrite');
 
-    const pizzaObjectStore = transaction.objectStore('new_pizza');
+    const transactionObjectStore = transaction.objectStore('new_budget');
   
-    pizzaObjectStore.add(record);
+    transactionObjectStore.add(record);
+}
+
+function uploadPizza() {
+    const transaction = db.transaction(['new_budget'], 'readwrite');
+  
+    const transactionObjectStore = transaction.objectStore('new_budget');
+  
+    const getAll = transactionObjectStore.getAll();
+  
+    // upon a successful .getAll() execution, run this function
+    getAll.onsuccess = function() {
+        // if there was data in indexedDb's store, send it to the api server
+        if (getAll.result.length > 0) {
+            fetch('/api/transactions', {
+                method: 'POST',
+                body: JSON.stringify(getAll.result),
+                headers: {
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(serverResponse => {
+                    if (serverResponse.message) {
+                        throw new Error(serverResponse);
+                    }
+                    // open one more transaction
+                    const transaction = db.transaction(['new_budget'], 'readwrite');
+                    // access the new_budget object store
+                    const transactionObjectStore = transaction.objectStore('new_budget');
+                    // clear all items in your store
+                    transactionObjectStore.clear();
+
+                    alert('All saved budget changes has been submitted!');
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    };
 }
